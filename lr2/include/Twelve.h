@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-class Six {
+class Twelve {
 private:
     unsigned char *digits = nullptr;
     size_t size;
@@ -11,22 +11,22 @@ private:
     void rmZeros ();
 
 public:
-    Six ();
-    Six (const size_t &length, unsigned char digit = '0');
-    Six (const std::initializer_list<unsigned char> &list);
-    Six (const std::string &str);
-    Six (const Six& other);
-    Six (Six&& other) noexcept;
-    virtual ~Six() noexcept;
+    Twelve (); // конструктор для случая Twelve a;
+    Twelve (const size_t &length, unsigned char digit = '0'); // конструктор для случая Twelve a(4, '0');
+    Twelve (const std::initializer_list<unsigned char> &list); // конструктор для случая Twelve a({1, 2, 3});
+    Twelve (const std::string &str); // конструктор для случая Twelve a("123");
+    Twelve (const Twelve &other); // конструктор для случая Twelve a; Twelve b(a);
+    Twelve (Twelve &&other) noexcept; // 
+    virtual ~Twelve() noexcept;
 
-    bool operator== (const Six &other) const;
-    bool operator< (const Six &other) const;
-    bool operator> (const Six &other) const;
-    Six& operator= (const Six &other);
-    Six& operator+= (const Six &other);
-    Six& operator-= (const Six &other);
+    bool operator== (const Twelve &other) const;
+    bool operator< (const Twelve &other) const;
+    bool operator> (const Twelve &other) const;
+    Twelve& operator= (const Twelve &other);
+    Twelve& operator+= (const Twelve &other);
+    Twelve& operator-= (const Twelve &other);
 
-    friend std::ostream& operator<< (std::ostream& os, const Six &number);
+    friend std::ostream& operator<< (std::ostream& os, const Twelve &number);
 };
 
-std::ostream& operator<< (std::ostream& os, const Six &number);
+std::ostream& operator<< (std::ostream& os, const Twelve &number);

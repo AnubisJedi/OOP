@@ -2,38 +2,47 @@
 #include "../include/Twelve.h"
 
 unsigned char validateDigit (unsigned char digit);
+unsigned char digitToChar(int digit);
+int charToDigit(unsigned char digit);
 
-void Six::allocBuffer (size_t bufSize) {
+void Twelve::allocBuffer (size_t bufSize) {
     size = bufSize;
     digits = new(std::nothrow) unsigned char[size];
     if (!digits) throw std::runtime_error("Allocation failed");
 }
 
-void Six::rmZeros () {
-    int firstDigit = 0;
+void Twelve::rmZeros() {
+    int firstNonZero = size - 1;
 
-    for (int i = 0; i < size; i++) {
-        if (digits[i] != '0') firstDigit = i;
+    while (firstNonZero >= 0 && digits[firstNonZero] == '0') {
+        --firstNonZero;
     }
 
-    unsigned char *newDigits = new unsigned char[firstDigit + 1];
-    
-    for (int i = 0; i < firstDigit + 1; i++) {
+    if (firstNonZero < 0) {
+        // Если все нули, оставляем одно значение '0'
+        allocBuffer(1);
+        digits[0] = '0';
+        return;
+    }
+
+    int newSize = firstNonZero + 1;
+    unsigned char* newDigits = new unsigned char[newSize];
+
+    for (int i = 0; i < newSize; ++i) {
         newDigits[i] = digits[i];
     }
 
-    delete [] digits;
-
-    size = firstDigit + 1;
+    delete[] digits;
     digits = newDigits;
+    size = newSize;
 }
 
-Six::Six () {
+Twelve::Twelve() {
     allocBuffer(1);
     digits[0] = '0';
 }
 
-Six::Six (const size_t &length, unsigned char digit) {
+Twelve::Twelve(const size_t &length, unsigned char digit) {
     validateDigit(digit);
 
     if (length <= 0) throw std::invalid_argument("Length must be positive");
@@ -44,7 +53,7 @@ Six::Six (const size_t &length, unsigned char digit) {
     rmZeros();
 }
 
-Six::Six (const std::initializer_list<unsigned char> &list) {
+Twelve::Twelve(const std::initializer_list<unsigned char> &list) {
     allocBuffer(list.size());
 
     int bufferPos = size - 1;
@@ -55,7 +64,7 @@ Six::Six (const std::initializer_list<unsigned char> &list) {
     rmZeros();
 }
 
-Six::Six (const std::string &str) {
+Twelve::Twelve(const std::string &str) {
     allocBuffer(str.length());
 
     for (int i = 0; i < size; i++) {
@@ -65,7 +74,7 @@ Six::Six (const std::string &str) {
     rmZeros();
 }
 
-Six::Six (const Six& other) {
+Twelve::Twelve(const Twelve& other) {
     delete [] digits;
     allocBuffer(other.size);
 
@@ -74,18 +83,18 @@ Six::Six (const Six& other) {
     }
 }
 
-Six::Six (Six&& other) noexcept {
+Twelve::Twelve(Twelve&& other) noexcept {
     size = other.size;
     digits = other.digits;
     other.size = 0;
     other.digits = nullptr;
 }
 
-Six::~Six() noexcept {
+Twelve::~Twelve() noexcept {
     delete [] digits;
 }
 
-bool Six::operator== (const Six &other) const {
+bool Twelve::operator== (const Twelve &other) const {
     if (size != other.size) return false;
 
     for (int i = 0; i < size; i++) {
@@ -95,7 +104,7 @@ bool Six::operator== (const Six &other) const {
     return true;
 }
 
-bool Six::operator< (const Six &other) const {
+bool Twelve::operator< (const Twelve &other) const {
     if (size < other.size) return true;
     if (size > other.size) return false;
 
@@ -107,7 +116,7 @@ bool Six::operator< (const Six &other) const {
     return false;
 }
 
-bool Six::operator> (const Six &other) const {
+bool Twelve::operator> (const Twelve &other) const {
     if (size > other.size) return true;
     if (size < other.size) return false;
 
@@ -119,7 +128,7 @@ bool Six::operator> (const Six &other) const {
     return false;
 }
 
-Six& Six::operator= (const Six &other) {
+Twelve& Twelve::operator= (const Twelve &other) {
     if (this == &other) {
         throw std::logic_error("Self asigment");
     }
@@ -134,67 +143,78 @@ Six& Six::operator= (const Six &other) {
     return *this;
 }
 
-Six& Six::operator+= (const Six &other) {
-    int maxSize = size > other.size ? size : other.size;
-    unsigned char *newDigits = new(std::nothrow) unsigned char[maxSize + 1];
-    if (!newDigits) throw std::runtime_error("Allocation failed");
 
-    int carry = 0;
-
-    for (int i = 0; i < maxSize; i++) {
-        int digitA = i < size ? digits[i] - '0' : 0;
-        int digitB = i < other.size ? other.digits[i] - '0' : 0;
-
-        int sum = digitA + digitB + carry;
-        newDigits[i] = '0' + sum % 6;
-        carry = sum >= 6 ? 1 : 0;
+std::ostream& operator<< (std::ostream& os, const Twelve &number) {
+    os << "0t";
+    for (int i = number.size - 1; i >= 0; i--) {
+        os << digitToChar(charToDigit(number.digits[i]));
     }
-
-    if (carry > 0) newDigits[maxSize] = '1';
-
-    delete [] digits;
-    size = carry > 0 ? maxSize + 1 : maxSize;
-    digits = newDigits;
-
-    return *this;
-}
-
-Six& Six::operator-= (const Six &other) {
-    if (*this < other) {
-        throw std::logic_error("Reduced is less than the subtracted");
-    }
-
-    // не нужна проверка, A не может быть меньше
-    unsigned char *newDigits = new(std::nothrow) unsigned char[size];
-    if (!newDigits) throw std::runtime_error("Allocation failed");
-
-    int carry = 0;
-
-    for (int i = 0; i < size; i++) {
-        // не нужна проверка, A не может быть меньше
-        int digitA = digits[i] - '0';
-        int digitB = i < other.size ? other.digits[i] - '0' : 0;
-
-        int diff = digitA - digitB - carry;
-        newDigits[i] = '0' + (diff < 0 ? diff + 6 : diff);
-        carry = diff < 0 ? 1 : 0;
-    }
-
-    delete [] digits;
-    digits = newDigits;
-    
-    rmZeros();
-
-    return *this;
-}
-
-std::ostream& operator<< (std::ostream& os, const Six &number) {
-    os << "0s";
-    for (int i = number.size - 1; i >= 0; i--) os << number.digits[i];
     return os;
 };
 
+Twelve& Twelve::operator+=(const Twelve& other) {
+    size_t maxSize = std::max(size, other.size) + 1; // Запас на перенос
+    unsigned char* newDigits = new unsigned char[maxSize]();
+
+    int carry = 0;
+    for (int i = 0; i < maxSize - 1; ++i) {
+        int thisDigit = i < size ? charToDigit(digits[i]) : 0;
+        int otherDigit = i < other.size ? charToDigit(other.digits[i]) : 0;
+
+        int sum = thisDigit + otherDigit + carry;
+        carry = sum / 12;
+        newDigits[i] = digitToChar(sum % 12);
+    }
+
+    if (carry > 0) {
+        newDigits[maxSize - 1] = digitToChar(carry);
+    } else {
+        --maxSize; // Уменьшить длину, если перенос отсутствует
+    }
+
+    delete[] digits;
+    digits = newDigits;
+    size = maxSize;
+
+    rmZeros(); // Удаление лидирующих нулей, если нужно
+    return *this;
+}
+
+Twelve& Twelve::operator-=(const Twelve& other) {
+    if (*this < other) throw std::logic_error("Cannot subtract larger number from smaller one");
+
+    int borrow = 0;
+    for (int i = 0; i < size; ++i) {
+        int thisDigit = i < size ? charToDigit(digits[i]) : 0;
+        int otherDigit = i < other.size ? charToDigit(other.digits[i]) : 0;
+
+        int diff = thisDigit - otherDigit - borrow;
+        if (diff < 0) {
+            diff += 12;
+            borrow = 1;
+        } else {
+            borrow = 0;
+        }
+
+        digits[i] = digitToChar(diff);
+    }
+
+    rmZeros(); // Удаление лидирующих нулей
+    return *this;
+}
+
+
 unsigned char validateDigit (unsigned char digit) {
-    if (digit < '0' || digit > '5') throw std::invalid_argument("Invalid digit");
-    return digit;
+    if ((digit >= '0' && digit <= '9') || (digit >= 'a' && digit <= 'b')) {
+        return digit;
+    }
+    throw std::invalid_argument("Invalid digit");
+}
+
+int charToDigit(unsigned char digit) {
+    return (digit >= '0' && digit <= '9') ? (digit - '0') : (digit - 'a' + 10);
+}
+
+unsigned char digitToChar(int digit) {
+    return (digit < 10) ? ('0' + digit) : ('a' + digit - 10);
 }

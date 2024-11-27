@@ -11,24 +11,24 @@ int main () {
     std::cin >> numberBStr;
 
     try {
-        Six numberA(numberAStr);
-        Six numberB(numberBStr);
+        Twelve numberA(numberAStr);
+        Twelve numberB(numberBStr);
 
         std::cout << "a = " << numberA << std::endl;
         std::cout << "b = " << numberB << std::endl;
 
-        Six numberSum{numberA};
+        Twelve numberSum{numberA};
         numberSum += numberB;
 
         std::cout << "a + b = " << numberSum << std::endl;
         
         if (numberA > numberB || numberA == numberB) {
-            Six numberDiff{numberA};
+            Twelve numberDiff{numberA};
             numberDiff -= numberB;
 
             std::cout << "a - b = " << numberDiff << std::endl;
         } else {
-            Six numberDiff{numberB};
+            Twelve numberDiff{numberB};
             numberDiff -= numberA;
 
             std::cout << "b - a = " << numberDiff << std::endl;
