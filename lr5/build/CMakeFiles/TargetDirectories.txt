@@ -1,0 +1,5 @@
+/workspaces/OOP/lab5/build/CMakeFiles/myapp.dir
+/workspaces/OOP/lab5/build/CMakeFiles/runTests.dir
+/workspaces/OOP/lab5/build/CMakeFiles/test.dir
+/workspaces/OOP/lab5/build/CMakeFiles/edit_cache.dir
+/workspaces/OOP/lab5/build/CMakeFiles/rebuild_cache.dir
